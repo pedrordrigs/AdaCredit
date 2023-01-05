@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "KUwsQVewQM6xecwrGIAOqypK0Xn2Ls92DUVJXa+NMfjl8o53RYHfObbWN3u8eOjimNHVhNJ2cnrazb1pn4dpAg==",
+  "success": true,
+  "projectFilePath": "D:\\Lets Code\\AdaCreditNew\\AdaCredit.UI\\AdaCredit.UI.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\pedro\\.nuget\\packages\\bcrypt.net-next\\4.0.3\\bcrypt.net-next.4.0.3.nupkg.sha512",
+    "C:\\Users\\pedro\\.nuget\\packages\\bogus\\34.0.2\\bogus.34.0.2.nupkg.sha512",
+    "C:\\Users\\pedro\\.nuget\\packages\\consolemenu-simple\\2.4.3\\consolemenu-simple.2.4.3.nupkg.sha512"
+  ],
+  "logs": []
+}
