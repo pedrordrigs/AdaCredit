@@ -57,7 +57,8 @@ namespace AdaCredit.UI
             var subRelatorios = new ConsoleMenu(Array.Empty<string>(), level: 1)
                 .Add("Relatório de Clientes Ativos", ReportActive.Execute)
                 .Add("Relatório de Clientes Inativos", ReportInactive.Execute)
-                .Add("Data de último login dos funcionários.", ReportLastLogin.Execute)
+                .Add("Relatório de último login dos funcionários", ReportLastLogin.Execute)
+                .Add("Relatório de Transações Falhas", FailedTransactions.Execute)
                 .Add("Voltar", ConsoleMenu.Close)
                 .Configure(config =>
                 {

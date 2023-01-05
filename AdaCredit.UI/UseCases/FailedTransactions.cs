@@ -2,11 +2,11 @@
 
 namespace AdaCredit.UI.UseCases
 {
-    public static class ReportInactive
+    public static class FailedTransactions
     {
         public static void Execute()
         {
-            ClientRepository.GetInactive();
+            TransactionRepository.FailReport();
             Console.ReadKey();
         }
     }

@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Lets Code\\AdaCreditNew\\AdaCredit.UI\\AdaCredit.UI.csproj": {}
+    "D:\\Lets Code\\AdaCredit\\AdaCredit.UI\\AdaCredit.UI.csproj": {}
   },
   "projects": {
-    "D:\\Lets Code\\AdaCreditNew\\AdaCredit.UI\\AdaCredit.UI.csproj": {
+    "D:\\Lets Code\\AdaCredit\\AdaCredit.UI\\AdaCredit.UI.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Lets Code\\AdaCreditNew\\AdaCredit.UI\\AdaCredit.UI.csproj",
+        "projectUniqueName": "D:\\Lets Code\\AdaCredit\\AdaCredit.UI\\AdaCredit.UI.csproj",
         "projectName": "AdaCredit.UI",
-        "projectPath": "D:\\Lets Code\\AdaCreditNew\\AdaCredit.UI\\AdaCredit.UI.csproj",
+        "projectPath": "D:\\Lets Code\\AdaCredit\\AdaCredit.UI\\AdaCredit.UI.csproj",
         "packagesPath": "C:\\Users\\pedro\\.nuget\\packages\\",
-        "outputPath": "D:\\Lets Code\\AdaCreditNew\\AdaCredit.UI\\obj\\",
+        "outputPath": "D:\\Lets Code\\AdaCredit\\AdaCredit.UI\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\pedro\\AppData\\Roaming\\NuGet\\NuGet.Config",

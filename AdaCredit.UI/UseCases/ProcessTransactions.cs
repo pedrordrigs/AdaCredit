@@ -7,6 +7,9 @@ namespace AdaCredit.UI.UseCases
         public static void Execute()
         {
             TransactionRepository.TransactionProcessing();
+            Console.Clear();
+            Console.WriteLine("Transações processadas.");
+            Console.ReadKey();
         }
     }
 }

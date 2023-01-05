@@ -30,7 +30,6 @@ namespace AdaCredit.UI.Repositories
 
                 try
                 {
-                    // Read the file and store the contents in the _clients list
                     using (var reader = new StreamReader(filePath))
                     {
                         while (!reader.EndOfStream)
@@ -54,6 +53,7 @@ namespace AdaCredit.UI.Repositories
                     var repository = new TransactionRepository();
                     repository.ProcessTransaction(date);
                     repository.TransactionList(date, bankName);
+                    _transactions.Clear();
                 }
                 catch (Exception e)
                 {
@@ -79,46 +79,36 @@ namespace AdaCredit.UI.Repositories
                     var bankAgency2 = transaction.SourceBankAgency;
                     var bankCode2 = transaction.SourceBankCode;
 
-                    if((bankAgency1 == 0001 && bankCode1 == 777) || bankAgency2 == 0001 && bankCode2 == 777)
+                    if (clientDebit != null && transactionType == "TED" && (date > taxDate))
+                    {
+                        tax = 5;
+                    }
+
+                    else if (clientDebit != null && transactionType == "DOC" && (date > taxDate))
+                    {
+                        decimal percentage = (transaction.Amount / 100);
+                        if (percentage > 5)
+                            percentage = 5;
+                        tax = 1 + percentage;
+                    }
+
+                    if ((bankAgency1 == 0001 && bankCode1 == 777) || (bankAgency2 == 0001 && bankCode2 == 777))
                     {  
-
-                        if (clientDebit != null && transactionType == "TED" && (date > taxDate))
-                        {
-                            tax = 5;
-                        }
-
-                        else if (clientDebit != null && transactionType == "DOC" && (date > taxDate))
-                        {
-                            decimal percentage = (transaction.Amount / 100);
-                            if (percentage > 5)
-                                percentage = 5;
-                            tax = 1 + percentage;
-                        }
-
-                        if (clientDebit != null && clientCredit != null)
+                        if (clientDebit != null && clientCredit != null && ((transaction.Amount + tax) < clientDebit.Balance))
                         {
                             var value = transaction.Amount;
                             var debit = value * -1;
-                            if ((clientCredit.Balance - debit) > 0)
-                            {
-                                UpdateBalance(clientDebit, debit);
-                                UpdateBalance(clientCredit, value);
-                                transaction.Sucess = true;
-                            }
-                            else
-                                transaction.Sucess = false;
+                            UpdateBalance(clientDebit, debit);
+                            UpdateBalance(clientCredit, value);
+                            transaction.Sucess = true;
                         }
-                        else if (clientDebit != null)
+
+                        else if (clientDebit != null && ((transaction.Amount + tax) < clientDebit.Balance))
                         {
                             var value = transaction.Amount;
                             var debit = (value * -1) - tax;
-                            if ((clientDebit.Balance - value) > 0)
-                            {
-                                UpdateBalance(clientDebit, debit);
-                                transaction.Sucess = true;
-                            }
-                            else
-                                transaction.Sucess = false;
+                            UpdateBalance(clientDebit, debit);
+                            transaction.Sucess = true;
                         }
 
                         else if (clientCredit != null)
@@ -127,6 +117,8 @@ namespace AdaCredit.UI.Repositories
                             UpdateBalance(clientCredit, value);
                             transaction.Sucess = true;
                         }
+                        else
+                            transaction.Sucess = false;
                     }
 
                     else
@@ -138,8 +130,62 @@ namespace AdaCredit.UI.Repositories
                 }
             }
         }
+        public static void FailReport()
+        {
+            _transactions.Clear();
+            var directoryPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "Transactions", "Failed");
+            // Get a list of all .csv files in the directory
+            string[] filePaths = Directory.GetFiles(directoryPath, "*.csv");
 
-    public void TransactionList(DateTime date, string bankName)
+            foreach (string filePath in filePaths)
+            {
+                // Extract the file name and date from the file path
+                string fileName = Path.GetFileNameWithoutExtension(filePath);
+                string[] parts = fileName.Split('-');
+                string bankName = string.Join("-", parts.Take(parts.Length - 1));
+
+                using (var reader = new StreamReader(filePath))
+                {
+                    while (!reader.EndOfStream)
+                    {
+                        var line = reader.ReadLine();
+                        var values = line.Split(',');
+                        int sourceBankCode = int.Parse(values[0]);
+                        int sourceBankAgency = int.Parse(values[1]);
+                        int sourceBankAccount = int.Parse(values[2]);
+                        int destinationBankCode = int.Parse(values[3]);
+                        int destinationBankAgency = int.Parse(values[4]);
+                        int destinationBankAccount = int.Parse(values[5]);
+                        string transactionType = values[6];
+                        decimal amount = decimal.Parse(values[7]);
+                        var transaction = new Transaction(sourceBankCode, sourceBankAgency, sourceBankAccount,
+                                    destinationBankCode, destinationBankAgency, destinationBankAccount,
+                                    transactionType, amount);
+                        _transactions.Add(transaction);
+                    }
+                }
+
+                // Print header
+                Console.WriteLine("Relatório de Operações Falhas");
+                Console.WriteLine("-------------------------");
+
+                // Print each failed transaction
+                foreach (var transaction in _transactions)
+                {
+                    Console.WriteLine("Arquivo de origem da transação: " + bankName);
+                    Console.WriteLine("Código do Banco de Origem: " + transaction.SourceBankCode);
+                    Console.WriteLine("Agência do Banco de Origem: " + transaction.SourceBankAgency);
+                    Console.WriteLine("Conta do Banco de Origem: " + transaction.SourceBankAccount);
+                    Console.WriteLine("Código do Banco de Destino: " + transaction.DestinationBankCode);
+                    Console.WriteLine("Agência do Banco de Destino: " + transaction.DestinationBankAgency);
+                    Console.WriteLine("Conta do Banco de Destino: " + transaction.DestinationBankAccount);
+                    Console.WriteLine("Tipo da Transação: " + transaction.TransactionType);
+                    Console.WriteLine("Valor: " + transaction.Amount);
+                    Console.WriteLine("-------------------------");
+                }
+            }
+        }
+        public void TransactionList(DateTime date, string bankName)
     {
         foreach (var transaction in _transactions)
         {
@@ -158,13 +204,11 @@ namespace AdaCredit.UI.Repositories
                 string filePath = Path.Combine(directoryPath, fileName);
 
                 // Create the .csv file and the StreamWriter object
-                using (var writer = new StreamWriter(filePath))
-                {
-                    // Write the data to the .csv file
-                    writer.WriteLine($"{transaction.SourceBankCode}, {transaction.SourceBankAgency}, {transaction.SourceBankAccount}" +
+
+                        // Write the data to the .csv file
+                        File.AppendAllText(filePath, $"{transaction.SourceBankCode}, {transaction.SourceBankAgency}, {transaction.SourceBankAccount}" +
                         $", {transaction.DestinationBankCode}, {transaction.DestinationBankAgency}, {transaction.DestinationBankAccount}" +
-                        $",{transaction.TransactionType}, {transaction.Amount}");
-                }
+                        $",{transaction.TransactionType}, {transaction.Amount}" + Environment.NewLine);
             }
             else
             {
@@ -178,15 +222,11 @@ namespace AdaCredit.UI.Repositories
 
                 // Create the full file path
                 string filePath = Path.Combine(directoryPath, fileName);
-
-                // Create the .csv file and the StreamWriter object
-                using (var writer = new StreamWriter(filePath))
-                {
                     // Write the data to the .csv file
-                    writer.WriteLine($"{transaction.SourceBankCode}, {transaction.SourceBankAgency}, {transaction.SourceBankAccount}" +
-                        $", {transaction.DestinationBankCode}, {transaction.DestinationBankAgency}, {transaction.DestinationBankAccount}" +
-                        $",{transaction.TransactionType}, {transaction.Amount}");
-                }
+                    File.AppendAllText(filePath, $"{transaction.SourceBankCode}, {transaction.SourceBankAgency}, {transaction.SourceBankAccount}" +
+                    $", {transaction.DestinationBankCode}, {transaction.DestinationBankAgency}, {transaction.DestinationBankAccount}" +
+                    $",{transaction.TransactionType}, {transaction.Amount}" + Environment.NewLine);
+               
             }
         }
     }
